@@ -1,3 +1,5 @@
+#include <Adafruit_AM2320.h>
+
 #include <Bridge.h>
 #include "T6603.h"
 #include "DHT.h"
@@ -56,19 +58,25 @@ void loop() {
   Bridge.get("CO2", buf, 10);
   
   Serial.print("CO2 = ");
+  buf[6] = '\0';
   Serial.print(buf);
   Serial.print("PPM\tO2 = ");
   Bridge.get("O2", buf, 10);
+  buf[6] = '\0';
   Serial.print(buf);
   Serial.print("% Water_Level = ");
   Bridge.get("Water_Level", buf, 10);
+  buf[6] = '\0';
   Serial.print(buf);
   Serial.print(" Temp = ");
   Bridge.get("Temperature", buf, 10);
+  buf[6] = '\0';
   Serial.print(buf);
   Serial.print(" Humidity = ");
   Bridge.get("Humidity", buf, 10);
+  buf[6] = '\0';
   Serial.print(buf);
+  buf[6] = '\0';
   Serial.println("\n");
   delay(2000);
   
