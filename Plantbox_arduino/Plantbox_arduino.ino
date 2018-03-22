@@ -29,6 +29,22 @@ double get_waterlevel(){
   return (double)analogRead(water_Pin);
 }
 
+void get_value(char *dataname, int pinNum, int mode = 0){
+  char num[5] = {'\0'};
+  Bridge.get(dataname, num, 5);
+  num[4] = '\0';
+  int val = atoi(num);
+  if (mode == 0){
+    if (val > 0) digitalWrite(pinNum, HIGH);
+    else digitalWrite(pinNum, LOW);
+  }
+  else if(mode == 1){
+    if (val > 1023) analogWrite(pinNum, 1023);
+    else if (val < 0) analogWrite(pinNum, 0);
+    else analogWrite(pinNum, val);
+  }
+}
+
 void put_value(char *dataname, double data){
   dtostrf(data, 6, 6, putvaletmp);
   Bridge.put(dataname, putvaletmp);
@@ -48,11 +64,13 @@ void loop() {
   double o2 = get_o2();
   double waterlevel = get_waterlevel();
 
-  put_value("Humidity", humi);
-  put_value("Temperature", temp);
-  put_value("CO2", co2);
-  put_value("O2", o2);
-  put_value("Water_Level", waterlevel);
+  put_value("Humidity Plantbox", humi);
+  put_value("Temperature Plantbox", temp);
+  put_value("CO2 Plantbox", co2);
+  put_value("O2 Plantbox", o2);
+  put_value("Water Level Plantbox", waterlevel);
+
+  get_value("LED_test", 13);
 
   char buf[10];
   Bridge.get("CO2", buf, 10);
@@ -78,6 +96,9 @@ void loop() {
   Serial.print(buf);
   buf[6] = '\0';
   Serial.println("\n");
+  Bridge.get("LED_test", buf, 10);
+  buf[6] = '\0';
+  Serial.println(buf);
   delay(2000);
   
 }
