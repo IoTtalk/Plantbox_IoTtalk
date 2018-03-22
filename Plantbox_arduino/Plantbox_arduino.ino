@@ -4,12 +4,16 @@
 #include "T6603.h"
 #include "DHT.h"
 
+#define DELAYTIME 2000
+
 #define DHT_Pin 9
 #define co2_TX_Pin 10
 #define co2_RX_Pin 11
 #define o2_Pin A0
 #define water_Pin A1
 #define VRefer 5
+
+int outcoming [13];
 
 char putvaletmp[100] = {'\0'};
 
@@ -45,14 +49,27 @@ void get_value(char *dataname, int pinNum, int mode = 0){
   }
 }
 
-void put_value(char *dataname, double data){
+void put_value(char *dataname, double data, int index){
   dtostrf(data, 6, 6, putvaletmp);
   Bridge.put(dataname, putvaletmp);
+
+  char outcome[60] = "outcomming_";
+  strcat(outcome, dataname);
+  outcoming[index] = outcoming[index]^1;
+  char outcomedata[5];
+  itoa(outcoming[index], outcomedata, 10);
+  Serial.print(outcome);
+  Serial.println(outcomedata);
+  Bridge.put(outcome, outcomedata);
+  
 }
 
 void setup() {
+  for (int i=0;i<13;i++){
+    outcoming[i] = 0;
+  }
   Bridge.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Setup");
   co2_sensor.begin(co2_TX_Pin, co2_RX_Pin);
 }
@@ -64,41 +81,47 @@ void loop() {
   double o2 = get_o2();
   double waterlevel = get_waterlevel();
 
-  put_value("Humidity Plantbox", humi);
-  put_value("Temperature Plantbox", temp);
-  put_value("CO2 Plantbox", co2);
-  put_value("O2 Plantbox", o2);
-  put_value("Water Level Plantbox", waterlevel);
+  put_value("Humidity Plantbox", humi, 0);
+  put_value("Temperature Plantbox", temp, 1);
+  put_value("CO2 Plantbox", co2, 2);
+  put_value("O2 Plantbox", o2, 3);
+  put_value("Water Level Plantbox", waterlevel, 4);
 
-  get_value("LED_test", 13);
+  get_value("LED1 Plantbox", 13);
 
+  /*
   char buf[10];
-  Bridge.get("CO2", buf, 10);
+  Bridge.get("CO2 Plantbox", buf, 10);
   
   Serial.print("CO2 = ");
   buf[6] = '\0';
   Serial.print(buf);
   Serial.print("PPM\tO2 = ");
-  Bridge.get("O2", buf, 10);
+  Bridge.get("O2 Plantbox", buf, 10);
   buf[6] = '\0';
   Serial.print(buf);
   Serial.print("% Water_Level = ");
-  Bridge.get("Water_Level", buf, 10);
+  Bridge.get("Water Level Plantbox", buf, 10);
   buf[6] = '\0';
   Serial.print(buf);
   Serial.print(" Temp = ");
-  Bridge.get("Temperature", buf, 10);
+  Bridge.get("Temperature Plantbox", buf, 10);
   buf[6] = '\0';
   Serial.print(buf);
   Serial.print(" Humidity = ");
-  Bridge.get("Humidity", buf, 10);
+  Bridge.get("Humidity Plantbox", buf, 10);
   buf[6] = '\0';
   Serial.print(buf);
   buf[6] = '\0';
   Serial.println("\n");
-  Bridge.get("LED_test", buf, 10);
+  Bridge.get("LED1 Plantbox", buf, 10);
   buf[6] = '\0';
   Serial.println(buf);
-  delay(2000);
+  for (int i=0;i<13;i++){
+    Serial.print(outcoming[i]);
+  }
+  Serial.print("\n");
+  */
+  delay(DELAYTIME);
   
 }
