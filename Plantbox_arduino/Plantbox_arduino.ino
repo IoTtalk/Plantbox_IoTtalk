@@ -13,6 +13,7 @@
 #define water_Pin A1
 #define VRefer 5
 
+unsigned short watching_dog;
 int outcoming [13];
 
 char putvaletmp[100] = {'\0'};
@@ -37,6 +38,12 @@ void get_value(char *dataname, int pinNum, int mode = 0){
   char num[5] = {'\0'};
   Bridge.get(dataname, num, 5);
   num[4] = '\0';
+  //Serial.println(dataname);
+  //Serial.println(num);
+  if (num[0] == '\0'){
+    //Serial.println("NAN");
+    return ;
+  }
   int val = atoi(num);
   if (mode == 0){
     if (val > 0) digitalWrite(pinNum, HIGH);
@@ -58,8 +65,8 @@ void put_value(char *dataname, double data, int index){
   outcoming[index] = outcoming[index]^1;
   char outcomedata[5];
   itoa(outcoming[index], outcomedata, 10);
-  Serial.print(outcome);
-  Serial.println(outcomedata);
+  //Serial.print(outcome);
+  //Serial.println(outcomedata);
   Bridge.put(outcome, outcomedata);
   
 }
@@ -68,6 +75,15 @@ void setup() {
   for (int i=0;i<13;i++){
     outcoming[i] = 0;
   }
+
+  for (int i=2;i<8;i++){
+    pinMode(i, OUTPUT);
+  }
+  for (int i=2;i<8;i++){
+    digitalWrite(i, LOW);
+  }
+
+  watching_dog = 0;
   Bridge.begin();
   Serial.begin(9600);
   Serial.println("Setup");
@@ -75,6 +91,8 @@ void setup() {
 }
 
 void loop() {
+  
+  //co2_sensor.begin(co2_TX_Pin, co2_RX_Pin);
   double humi = dht.readHumidity();
   double temp = dht.readTemperature();
   double co2 = (double)co2_sensor.get_co2();
@@ -86,9 +104,26 @@ void loop() {
   put_value("CO2 Plantbox", co2, 2);
   put_value("O2 Plantbox", o2, 3);
   put_value("Water Level Plantbox", waterlevel, 4);
+  put_value("Watching Dog", watching_dog, 5);
 
-  get_value("LED1 Plantbox", 13);
 
+  //get_value("Moter1", 2);
+  //get_value("Moter2", 3);
+  //get_value("Moter3", 4);
+  get_value("LED1", 5);
+  get_value("LED2", 6);
+  get_value("LED3", 7);
+  //Serial.println(co2);
+  /*
+  for (int i=2;i<8;i++){
+    digitalWrite(i, HIGH);
+  }
+  delay(2000);
+  for (int i=2;i<8;i++){
+    digitalWrite(i, LOW);
+  }
+  Serial.println("123");
+  */
   /*
   char buf[10];
   Bridge.get("CO2 Plantbox", buf, 10);
@@ -120,8 +155,8 @@ void loop() {
   for (int i=0;i<13;i++){
     Serial.print(outcoming[i]);
   }
-  Serial.print("\n");
-  */
-  delay(DELAYTIME);
+  Serial.print("\n");*/
   
+  delay(DELAYTIME);
+  watching_dog++;
 }
