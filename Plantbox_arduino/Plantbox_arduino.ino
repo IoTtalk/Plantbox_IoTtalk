@@ -46,7 +46,10 @@ void get_value(char *dataname, int pinNum, int mode = 0){
   }
   int val = atoi(num);
   if (mode == 0){
-    if (val > 0) digitalWrite(pinNum, HIGH);
+    if (val > 0){
+      digitalWrite(pinNum, HIGH);
+      watching_dog |= (1 << pinNum);
+    } 
     else digitalWrite(pinNum, LOW);
   }
   else if(mode == 1){
@@ -107,12 +110,14 @@ void loop() {
   put_value("Watching Dog", watching_dog, 5);
 
 
-  //get_value("Moter1", 2);
-  //get_value("Moter2", 3);
-  //get_value("Moter3", 4);
+  watching_dog = 0;
+  get_value("Moter1", 2);
+  get_value("Moter2", 3);
+  get_value("Moter3", 4);
   get_value("LED1", 5);
   get_value("LED2", 6);
   get_value("LED3", 7);
+  watching_dog >>= 2;
   //Serial.println(co2);
   /*
   for (int i=2;i<8;i++){
@@ -158,5 +163,5 @@ void loop() {
   Serial.print("\n");*/
   
   delay(DELAYTIME);
-  watching_dog++;
+  //watching_dog++;
 }
