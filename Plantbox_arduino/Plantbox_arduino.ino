@@ -23,10 +23,10 @@ DHT dht(DHT_Pin, DHT11);
 
 double get_o2(){
    int sum = 0;
-   for(int i=0; i<32; i++) sum += analogRead(o2_Pin);
-   sum >>= 5;
+   for(int i=0; i<8; i++) sum += analogRead(o2_Pin);
+   sum >>= 3;
 
-   double MeasuredVout = sum * (VRefer / 1023.0)*21/2.0;
+   double MeasuredVout = sum * (VRefer / 1024.0)*17.5;
    return MeasuredVout;
 }
 
@@ -91,6 +91,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Setup");
   co2_sensor.begin(co2_TX_Pin, co2_RX_Pin);
+  dht.begin();
 }
 
 void loop() {
