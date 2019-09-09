@@ -1,4 +1,8 @@
 #include <Adafruit_AM2320.h>
+#include <FastLED.h>
+#define NUM_LEDS 60
+#define LED_PIN1 5
+#define LED_PIN2 6
 
 #include <Bridge.h>
 #include "T6603.h"
@@ -12,6 +16,9 @@
 #define o2_Pin A0
 #define water_Pin A1
 #define VRefer 5
+
+CRGB leds1[NUM_LEDS];
+CRGB leds2[NUM_LEDS];
 
 unsigned short watching_dog;
 int outcoming [13];
@@ -31,7 +38,12 @@ double get_o2(){
 }
 
 double get_waterlevel(){
-  return (double)analogRead(water_Pin);
+  int value = analogRead(water_Pin);
+  if (value < 200) return 40;
+  if (value < 400) return 50;
+  if (value < 600) return 60;
+  if (value < 850) return 70;
+  return 80;
 }
 
 void get_value(char *dataname, int pinNum, int mode = 0){
@@ -57,6 +69,49 @@ void get_value(char *dataname, int pinNum, int mode = 0){
     else if (val < 0) analogWrite(pinNum, 0);
     else analogWrite(pinNum, val);
   }
+}
+
+void set_LED(){
+  char LEDR[6] = {'\0'};
+  char LEDG[6] = {'\0'};
+  char LEDB[6] = {'\0'};
+  Bridge.get("LED-R-O", LEDR, 6);
+  Bridge.get("LED-G-O", LEDG, 6);
+  Bridge.get("LED-B-O", LEDB, 6);
+  LEDR[5] = '\0';
+  LEDG[5] = '\0';
+  LEDB[5] = '\0';
+  Serial.println(LEDG);
+  Serial.println(LEDB);
+  Serial.println(LEDR);
+  //Serial.println(dataname);
+  //Serial.println(num);
+  int valR = atoi(LEDR);
+  int valG = atoi(LEDG);
+  int valB = atoi(LEDB);
+  
+  for (int i=0; i<NUM_LEDS; i++) {
+    leds1[i] = CRGB(valG, valR, valB);
+    leds2[i] = CRGB(valG, valR, valB);
+  }
+  Serial.println(valG);
+  Serial.println(valB);
+  Serial.println(valR);
+  /*
+  if (val2 == 1){
+    for (int i=0; i<NUM_LEDS; i+=2){
+      leds1[i] = CRGB(0, 200, 200);
+      leds2[i] = CRGB(0, 200, 200);
+    }
+  }
+  if (val3 == 1){
+    for (int i=1; i<NUM_LEDS; i+=2){
+      leds1[i] = CRGB(200, 200, 200);
+      leds2[i] = CRGB(200, 200, 200);
+    }
+  }
+  */
+  FastLED.show();
 }
 
 void put_value(char *dataname, double data, int index){
@@ -86,6 +141,14 @@ void setup() {
     digitalWrite(i, LOW);
   }
 
+  FastLED.addLeds<WS2813, LED_PIN1, RGB>(leds1, NUM_LEDS);
+  FastLED.addLeds<WS2813, LED_PIN2, RGB>(leds2, NUM_LEDS);
+  for (int i=0; i<NUM_LEDS; i++) {
+    leds1[i] = CRGB(0, 0, 0);
+    leds2[i] = CRGB(0, 0, 0);
+  }
+  FastLED.show();
+  
   watching_dog = 0;
   Bridge.begin();
   Serial.begin(9600);
@@ -103,21 +166,22 @@ void loop() {
   double o2 = get_o2();
   double waterlevel = get_waterlevel();
 
-  put_value("Humidity Plantbox", humi, 0);
-  put_value("Temperature Plantbox", temp, 1);
-  put_value("CO2 Plantbox", co2, 2);
-  put_value("O2 Plantbox", o2, 3);
-  put_value("Water Level Plantbox", waterlevel, 4);
-  put_value("Watching Dog", watching_dog, 5);
+  put_value("Humidity-I", humi, 0);
+  put_value("Temperature-I", temp, 1);
+  put_value("CO2-I", co2, 2);
+  put_value("O2-I", o2, 3);
+  put_value("WaterLevel-I", waterlevel, 4);
+  //put_value("Watching Dog", watching_dog, 5);
 
 
   watching_dog = 0;
-  get_value("Moter1", 2);
-  get_value("Moter2", 3);
-  get_value("Moter3", 4);
-  get_value("LED1", 5);
-  get_value("LED2", 6);
-  get_value("LED3", 7);
+  get_value("PumpWater-O", 2);
+  get_value("Spray-O", 3);
+  get_value("AddWater-O", 4);
+  //get_value("LED1", 5);
+  //get_value("LED2", 6);
+  //get_value("LED3", 7);
+  set_LED();
   watching_dog >>= 2;
   //Serial.println(co2);
   /*
