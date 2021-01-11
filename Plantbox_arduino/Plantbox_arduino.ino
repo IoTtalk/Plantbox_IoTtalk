@@ -144,10 +144,10 @@ void loop() {
   
   //Get sensor value and put it to bridge
   put_value("Humidity-I", humi, 0);
-  put_value("Temperature-I", temp, 1);
+  put_value("Temp-I", temp, 1);
   put_value("CO2-I", co2, 2);
   put_value("O2-I", o2, 3);
-  put_value("WaterLevel-I", waterlevel, 4);
+  put_value("WaterLvl-I", waterlevel, 4);
   
   //Get signal from brigde.
   get_value("PumpWater-O", 2);
