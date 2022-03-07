@@ -8,9 +8,9 @@ def profile_init():
 
 def odf():  # int only
     return [
-	('LED-R-O', 0, 'LED-R-O'),
-	('LED-G-O', 0, 'LED-G-O'),
-	('LED-B-O', 0, 'LED-B-O'),
+	('Color-O', 0, 'LED-R-O'),
+	('Color-O', 1, 'LED-G-O'),
+	('Color-O', 2, 'LED-B-O'),
 	('AddWater-O', 0, 'AddWater-O'),
 	('PumpWater-O', 0, 'PumpWater-O'),
 	('Spray-O', 0, 'Spray-O'),
